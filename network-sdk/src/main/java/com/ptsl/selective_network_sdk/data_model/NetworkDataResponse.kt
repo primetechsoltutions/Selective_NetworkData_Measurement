@@ -6,5 +6,6 @@ data class NetworkDataResponse(
     @SerializedName("statusCode") val statusCode: Int? = null,
     @SerializedName("message") val message: String? = null,
     @SerializedName("testResult") val testResult: String? = null,
+    @SerializedName("sdkVersion") val sdkVersion: String? = com.ptsl.selective_network_sdk.BuildConfig.SdkVersion,
     @SerializedName("data") val data: Any? = null
 )
