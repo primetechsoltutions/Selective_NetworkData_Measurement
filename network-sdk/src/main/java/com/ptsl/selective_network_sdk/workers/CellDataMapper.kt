@@ -29,7 +29,7 @@ class CellDataMapper(private val downloader: DownloadUploadHelper) {
         val networkType = getNetworkType(cell)
 
         val speedResult = if (isMobileConnected) {
-            val retries = if (networkType == "4G") 3 else 1
+            val retries = if (networkType == "4G") 2 else 1
             downloader.getBandWidthSpeed(
                 networkType = networkType,
                 retryCountDownload = retries,
@@ -46,8 +46,8 @@ class CellDataMapper(private val downloader: DownloadUploadHelper) {
             this.mcc = mcc ?: "000"
             this.mnc = mnc ?: "00"
             type = if (cell is CellNr) "5G" else if (cell is CellLte) "4G" else networkType
-            userLatitude = locationPair.first
-            userLongitude = locationPair.second
+            lattitude = locationPair.first
+            longitude = locationPair.second
             deviceModel = Build.MODEL
             deviceManufacture = Build.MANUFACTURER
             deviceOsVersion = Build.VERSION.SDK_INT.toString()

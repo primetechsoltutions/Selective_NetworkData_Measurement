@@ -80,8 +80,8 @@ class DataCapturer(
         metrics: NetworkMetrics
     ): NetworkDataEntity {
         return NetworkDataEntity(
-            userLatitude = location.first,
-            userLongitude = location.second,
+            lattitude = location.first,
+            longitude = location.second,
             data = if (isMobile) "Mobile" else "Wifi",
             usedSimSlot = simCount,
             rtt = (metrics.rtt * 100).roundToInt() / 100.0,
