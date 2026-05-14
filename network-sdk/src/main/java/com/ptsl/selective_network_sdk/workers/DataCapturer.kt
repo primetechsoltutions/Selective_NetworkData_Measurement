@@ -26,17 +26,15 @@ class DataCapturer(
     private val timeProvider: DateTimeProvider
 ) {
     suspend fun captureData(
-        userLatitude: Double,
-        userLongitude: Double,
         metrics: NetworkMetrics
     ): List<NetworkDataEntity> {
         val dataList = arrayListOf<NetworkDataEntity>()
-        val locationPair = Pair(userLatitude, userLongitude)
-
         val isMobileConnected = networkStateProvider.isMobileConnected()
         val activeNetworkMnc = if (isMobileConnected) simInfoProvider.getActiveNetworkMNC() else "-1"
         val simCount = simInfoProvider.getSimCount()
         val isUserOnCall = simInfoProvider.isUserOnCall()
+        val locationPair = LocationHelper.getCurrentLocation(context)
+
 
         val cells = try {
             if (networkStateProvider.hasRequiredPermissions()) {

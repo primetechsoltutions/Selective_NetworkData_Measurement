@@ -39,9 +39,8 @@ class NetworkDataCaptureExecutor(
 
             // 2. Performance Testing
             val metrics = performanceTester.testLatencyAndRtt()
-
             // 3. Primary Data Capture
-            val rawData = dataCapturer.captureData(input.userLatitude, input.userLongitude, metrics)
+            val rawData = dataCapturer.captureData( metrics)
 
             // 4. Data Enrichment
             val enrichedData = dataEnricher.enrich(
