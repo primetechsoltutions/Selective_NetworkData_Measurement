@@ -108,6 +108,50 @@ class NWNetworkDataMeasurement {
         }
     }
 
+    /**
+     * Retrieves CID and LACID identifiers for Banglalink SIM.
+     * Performs preflight validation before retrieval.
+     */
+    fun getNetworkIdentifiers(callback: (Boolean, FWAMeasurementStatus) -> Unit) {
+        if (!isInitialized()) {
+            handleUninitializedError(callback)
+            return
+        }
+
+        try {
+            requestPermission { isGranted ->
+                val validator = SdkContainer.preFlightValidator
+                val validationError = validator?.validate(skipWifiCheck = true, skipMobileDataCheck = true)
+
+                if (!isGranted || validationError != null) {
+                    handlePermissionDenied(callback, skipWifiCheck = true, skipMobileDataCheck = true)
+                } else {
+                    performIdentifierRetrieval(callback)
+                }
+            }
+        } catch (e: Exception) {
+            Log.e(TAG, "Error retrieving identifiers: ${e.message}")
+            dispatchErrorCallback(callback, "Error retrieving identifiers")
+        }
+    }
+
+    private fun performIdentifierRetrieval(callback: (Boolean, FWAMeasurementStatus) -> Unit) {
+        SdkContainer.coroutineScope?.launch {
+            val response = withTimeoutOrNull(EXECUTION_TIMEOUT_MS) {
+                SdkContainer.networkDataCaptureExecutor?.getIdentifiers()
+            }
+
+            if (response != null) {
+                val isSuccess = response.status.equals(Constants.STATUS_SUCCESS, ignoreCase = true)
+                callbackDispatcher.dispatch(callback, isSuccess, createMeasurementStatus(response))
+            } else {
+                dispatchErrorCallback(callback, Constants.Assessment_Timeout_Message)
+            }
+        } ?: run {
+            dispatchErrorCallback(callback, "SDK initialization failed.")
+        }
+    }
+
     private fun isInitialized(): Boolean {
         return this::checkPermissionHandler.isInitialized && 
                this::callbackDispatcher.isInitialized && 
@@ -124,9 +168,13 @@ class NWNetworkDataMeasurement {
         callback(false, createMeasurementStatus(errorResponse, isSdkInit = false))
     }
 
-    private fun handlePermissionDenied(callback: (Boolean, FWAMeasurementStatus) -> Unit) {
+    private fun handlePermissionDenied(
+        callback: (Boolean, FWAMeasurementStatus) -> Unit,
+        skipWifiCheck: Boolean = false,
+        skipMobileDataCheck: Boolean = false
+    ) {
         val validator = SdkContainer.preFlightValidator
-        val validationError = validator?.validate()
+        val validationError = validator?.validate(skipWifiCheck, skipMobileDataCheck)
 
         val errorMessage = validationError?.first ?: "Required permissions or GPS are missing."
         val statusCode = validationError?.second ?: 400

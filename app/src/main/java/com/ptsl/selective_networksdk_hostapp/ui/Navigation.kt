@@ -25,7 +25,8 @@ sealed class Screen(val route: String) {
 fun AppNavigation(
     navController: NavHostController,
     onNavigateToFragment: () -> Unit,
-    onStartAssessment: ((Boolean, String?) -> Unit) -> Unit
+    onStartAssessment: ((Boolean, String?) -> Unit) -> Unit,
+    onGetIdentifiers: ((Boolean, String?) -> Unit) -> Unit
 ) {
     NavHost(navController = navController, startDestination = Screen.Dashboard.route) {
         composable(Screen.Dashboard.route) {
@@ -47,7 +48,10 @@ fun AppNavigation(
             PlaceholderScreen("Gaming", onBack = { navController.popBackStack() })
         }
         composable(Screen.Support.route) {
-            PlaceholderScreen("Support", onBack = { navController.popBackStack() })
+            SupportIdentifierScreen(
+                onBack = { navController.popBackStack() },
+                onGetIdentifiers = onGetIdentifiers
+            )
         }
         composable(Screen.Settings.route) {
             PlaceholderScreen("Settings", onBack = { navController.popBackStack() })

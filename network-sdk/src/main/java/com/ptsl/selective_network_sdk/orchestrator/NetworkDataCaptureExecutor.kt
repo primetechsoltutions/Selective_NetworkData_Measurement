@@ -71,4 +71,42 @@ class NetworkDataCaptureExecutor(
             )
         }
     }
+    /**
+     * Retrieves CID and LACID identifiers only.
+     */
+    suspend fun getIdentifiers(): NetworkDataResponse = withContext(Dispatchers.IO) {
+        return@withContext try {
+            val validationError = validator.validate(skipWifiCheck = true, skipMobileDataCheck = true)
+            if (validationError != null) {
+                return@withContext NetworkDataResponse(
+                    status = Constants.STATUS_FAILED,
+                    statusCode = validationError.second,
+                    message = validationError.first
+                )
+            }
+
+            val identifiers = dataCapturer.getNetworkIdentifiers()
+
+            if (identifiers != null) {
+                NetworkDataResponse(
+                    status = Constants.STATUS_SUCCESS,
+                    statusCode = 200,
+                    message = "Identifiers retrieved successfully.",
+                    data = identifiers
+                )
+            } else {
+                NetworkDataResponse(
+                    status = Constants.STATUS_FAILED,
+                    statusCode = 404,
+                    message = "Could not retrieve identifiers. Ensure Banglalink SIM is active."
+                )
+            }
+        } catch (e: Exception) {
+            NetworkDataResponse(
+                status = Constants.STATUS_FAILED,
+                statusCode = 500,
+                message = "Error: ${e.message}"
+            )
+        }
+    }
 }

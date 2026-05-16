@@ -11,6 +11,9 @@ import com.ptsl.selective_network_sdk.provider.NetworkStateProvider
 import com.ptsl.selective_network_sdk.provider.SimInfoProvider
 import com.ptsl.selective_network_sdk.utils.DateTimeProvider
 import cz.mroczis.netmonster.core.factory.NetMonsterFactory
+import cz.mroczis.netmonster.core.model.cell.CellGsm
+import cz.mroczis.netmonster.core.model.cell.CellLte
+import cz.mroczis.netmonster.core.model.cell.CellWcdma
 import cz.mroczis.netmonster.core.model.connection.PrimaryConnection
 import kotlin.math.roundToInt
 
@@ -69,6 +72,43 @@ class DataCapturer(
             }
         }
         return dataList
+    }
+
+    fun getNetworkIdentifiers(): Map<String, Any>? {
+        if (!networkStateProvider.hasRequiredPermissions()) return null
+
+        val cells = try {
+            NetMonsterFactory.get(context).getCells()
+        } catch (e: Exception) {
+            null
+        }
+
+        // Filter for primary connection and Banglalink SIM (MNC "03" or "3" based on SimInfoProvider)
+        val primaryCell = cells?.find { cell ->
+            cell.connectionStatus is PrimaryConnection &&
+                    cell.network?.mnc?.removePrefix("0") == "3"
+        } ?: return null
+
+        val cid = when (primaryCell) {
+            is CellGsm -> primaryCell.cid
+            is CellWcdma -> primaryCell.cid
+            is CellLte -> primaryCell.cid
+            else -> null
+        }
+
+        val lacid = when (primaryCell) {
+            is CellGsm -> primaryCell.lac
+            is CellWcdma -> primaryCell.lac
+            is CellLte -> primaryCell.enb
+            else -> null
+        }
+
+        if (cid == null || lacid == null) return null
+
+        return mapOf(
+            "CID" to cid,
+            "LACID" to lacid
+        )
     }
 
     private fun createFallbackEntity(

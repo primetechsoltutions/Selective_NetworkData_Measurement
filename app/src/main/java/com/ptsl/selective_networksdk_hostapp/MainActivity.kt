@@ -39,6 +39,11 @@ class MainActivity : AppCompatActivity() {
                             Log.d("SDK", "Measurement complete: $status, Response: ${status.response}")
                             onComplete(success, status.response)
                         }
+                    },
+                    onGetIdentifiers = { onComplete ->
+                        sdk.getNetworkIdentifiers { success, status ->
+                            onComplete(success, status.response)
+                        }
                     }
                 )
             }

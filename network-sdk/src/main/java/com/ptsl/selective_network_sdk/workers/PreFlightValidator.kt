@@ -23,8 +23,13 @@ class PreFlightValidator(
         BanglalinkDataRule(simInfoProvider)
     )
 
-    fun validate(): Pair<String, Int>? {
+    fun validate(
+        skipWifiCheck: Boolean = false,
+        skipMobileDataCheck: Boolean = false
+    ): Pair<String, Int>? {
         for (rule in rules) {
+            if (skipWifiCheck && rule is WifiRule) continue
+            if (skipMobileDataCheck && (rule is MobileDataRule || rule is BanglalinkDataRule)) continue
             val result = rule.validate()
             if (result != null) return result
         }
