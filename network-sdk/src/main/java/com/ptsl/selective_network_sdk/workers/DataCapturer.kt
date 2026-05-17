@@ -103,11 +103,19 @@ class DataCapturer(
             else -> null
         }
 
-        if (cid == null || lacid == null) return null
+        val type = when (primaryCell) {
+            is CellGsm -> "GSM"
+            is CellWcdma -> "WCDMA"
+            is CellLte -> "LTE"
+            else -> null
+        }
+
+        if (cid == null || lacid == null || type == null) return null
 
         return mapOf(
             "CID" to cid,
-            "LACID" to lacid
+            "LACID" to lacid,
+            "Technology" to type
         )
     }
 

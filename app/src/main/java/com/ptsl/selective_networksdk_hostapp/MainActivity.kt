@@ -42,6 +42,7 @@ class MainActivity : AppCompatActivity() {
                     },
                     onGetIdentifiers = { onComplete ->
                         sdk.getNetworkIdentifiers { success, status ->
+                            Log.d("SDK", "Identifier complete: $status, Response: ${status.response}")
                             onComplete(success, status.response)
                         }
                     }

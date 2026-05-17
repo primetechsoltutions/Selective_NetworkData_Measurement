@@ -66,6 +66,7 @@ fun SupportIdentifierScreen(
     var isLoading by remember { mutableStateOf(false) }
     var cid by remember { mutableStateOf<String?>(null) }
     var lacid by remember { mutableStateOf<String?>(null) }
+    var type by remember { mutableStateOf<String?>(null) }
     var message by remember { mutableStateOf<String?>(null) }
     var rawJson by remember { mutableStateOf<String?>(null) }
 
@@ -113,6 +114,8 @@ fun SupportIdentifierScreen(
                 IdentifierCard(label = "CID", value = cid ?: "---", modifier = Modifier.weight(1f))
                 Spacer(modifier = Modifier.width(16.dp))
                 IdentifierCard(label = "LACID", value = lacid ?: "---", modifier = Modifier.weight(1f))
+                Spacer(modifier = Modifier.width(16.dp))
+                IdentifierCard(label = "Technology", value = type ?: "---", modifier = Modifier.weight(1f))
             }
 
             if (message != null) {
@@ -150,6 +153,7 @@ fun SupportIdentifierScreen(
                                 if (data != null) {
                                     cid = data.optString("CID", "N/A")
                                     lacid = data.optString("LACID", "N/A")
+                                    type = data.optString("Technology", "N/A")
                                 }
                                 message = json.optString("message", if (success) "Success" else "Failed")
                             } catch (e: Exception) {
